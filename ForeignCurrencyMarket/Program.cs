@@ -17,12 +17,9 @@ namespace ForeignCurrencyMarket
         {
             var currencyRates = new CurrencyRates();
 
-            var currency1 = currencyRates.GetExchangeRates(CurrencyCode.JPY, new DateTime(2020,7,10));
-            var currency2 = currencyRates.GetExchangeRates(CurrencyCode.GBP, new DateTime(2020, 5, 26));
-
+            var currency1 = currencyRates.GetExchangeRates(CurrencyCode.JPY, new DateTime(2020,11,27));
 
             Console.WriteLine(currency1);
-            Console.WriteLine(currency2);
             
         }
     }

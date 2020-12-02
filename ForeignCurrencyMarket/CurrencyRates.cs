@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -38,7 +39,7 @@ namespace ForeignCurrencyMarket
         }
         
 
-        public decimal GetExchangeRates(CurrencyCode currencyCode, DateTime date)
+        private void DownloadExchangeRates(CurrencyCode currencyCode, DateTime date)
         {
             List<Currency> currencyList = new List<Currency>();
             XmlSerializer xs = new XmlSerializer(typeof(ValCurs));
@@ -59,7 +60,36 @@ namespace ForeignCurrencyMarket
             _context.Currencies.Add(currency);
             _context.SaveChanges();
 
-            return currency.Value;
+        }
+
+        private decimal GetExchangeRatesFromDb(CurrencyCode currencyCode, DateTime date)
+        {
+            Currency currency = _context.Currencies.FirstOrDefault(c => c.CharCode == currencyCode.ToString() && c.Date==date);
+            if (currency != null)
+                return currency.Value;
+            else
+                return -1;
+        }
+
+        public decimal GetExchangeRates(CurrencyCode currencyCode, DateTime date)
+        {
+            try
+            {
+                var c = GetExchangeRatesFromDb(currencyCode, date);
+                if (c == -1)
+                {
+                    DownloadExchangeRates(currencyCode, date);
+                    return GetExchangeRatesFromDb(currencyCode, date);
+                }
+                     
+                else
+                    return c;
+            }
+            catch(Exception e)
+            {
+                throw new Exception("При получении данных возникла ошибка: {0}", e.InnerException);
+            }
+            
         }
     }
 }
